@@ -112,12 +112,14 @@ const Index = () => {
               <span className="text-4xl">🎄</span>
               Новогодние Видео
             </h1>
-            <div className="flex gap-4">
+            <div className="flex gap-4 items-center">
               <a href="#home" className="hover:text-secondary transition-colors">Главная</a>
               <a href="#editor" className="hover:text-secondary transition-colors">Редактор</a>
               <a href="#gallery" className="hover:text-secondary transition-colors">Галерея</a>
               <a href="#faq" className="hover:text-secondary transition-colors">FAQ</a>
-              <a href="#contacts" className="hover:text-secondary transition-colors">Контакты</a>
+              <a href="/pricing" className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-semibold">
+                💎 Тарифы
+              </a>
             </div>
           </div>
         </nav>
@@ -145,25 +147,34 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             <Card className="hover:scale-105 transition-transform border-2 border-primary/20">
               <CardHeader>
-                <div className="text-5xl mb-2">✨</div>
-                <CardTitle>Легко и быстро</CardTitle>
-                <CardDescription>Создайте видео за 2 минуты</CardDescription>
+                <div className="text-5xl mb-2">🎙️</div>
+                <CardTitle>AI голос</CardTitle>
+                <CardDescription>Реалистичная озвучка персонажей</CardDescription>
               </CardHeader>
             </Card>
             <Card className="hover:scale-105 transition-transform border-2 border-secondary/20">
               <CardHeader>
                 <div className="text-5xl mb-2">🎁</div>
                 <CardTitle>Персонализация</CardTitle>
-                <CardDescription>Укажите имена детей</CardDescription>
+                <CardDescription>С именем вашего ребёнка</CardDescription>
               </CardHeader>
             </Card>
             <Card className="hover:scale-105 transition-transform border-2 border-accent/40">
               <CardHeader>
-                <div className="text-5xl mb-2">🎵</div>
-                <CardTitle>С музыкой</CardTitle>
-                <CardDescription>Новогодние мелодии</CardDescription>
+                <div className="text-5xl mb-2">📥</div>
+                <CardTitle>Скачивание</CardTitle>
+                <CardDescription>MP3 файлы для любых устройств</CardDescription>
               </CardHeader>
             </Card>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <a href="/pricing">
+              <Button size="lg" className="text-xl px-12 py-8 bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+                <Icon name="Sparkles" className="mr-2" size={24} />
+                Посмотреть тарифы
+              </Button>
+            </a>
           </div>
         </section>
 
@@ -372,11 +383,26 @@ const Index = () => {
                     </>
                   )}
                 </div>
-                <CardContent className="pt-4">
-                  <p className="font-semibold text-lg">Поздравление для {video.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {characters.find(c => c.id === video.character)?.name}
-                  </p>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="font-semibold text-lg">Поздравление для {video.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {characters.find(c => c.id === video.character)?.name}
+                    </p>
+                  </div>
+                  <Button 
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = video.videoUrl || video.video_url;
+                      link.download = `pozdravlenie_${video.name}.mp3`;
+                      link.click();
+                    }}
+                  >
+                    <Icon name="Download" className="mr-2" size={16} />
+                    Скачать поздравление
+                  </Button>
                 </CardContent>
               </Card>
             ))}
