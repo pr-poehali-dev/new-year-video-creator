@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,27 +7,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Icon from '@/components/ui/icon';
 import SnowEffect from '@/components/SnowEffect';
+import { useToast } from '@/hooks/use-toast';
+
+const VIDEOS_URL = 'https://functions.poehali.dev/25ad61b1-3834-4f5e-9278-01d9d55d229d';
 
 const Index = () => {
+  const { toast } = useToast();
   const [selectedCharacter, setSelectedCharacter] = useState('santa');
   const [childName, setChildName] = useState('');
-  const [videos, setVideos] = useState([
-    { 
-      id: 1, 
-      character: 'santa', 
-      name: 'Маша', 
-      thumbnail: '/img/d48aa981-3b64-42ad-a810-bb7c0d926bdd.jpg',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
-    },
-    { 
-      id: 2, 
-      character: 'snowmaiden', 
-      name: 'Саша', 
-      thumbnail: '/img/e7db9042-a0ba-48c2-bb1b-201b2767e23a.jpg',
-      videoUrl: 'https://www.w3schools.com/html/movie.mp4'
-    },
-  ]);
+  const [videos, setVideos] = useState<any[]>([]);
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+
+  useEffect(() => {
+    loadVideos();
+  }, []);
+
+  const loadVideos = async () => {
+    try {
+      const response = await fetch(VIDEOS_URL);
+      const data = await response.json();
+      if (data.videos) {
+        setVideos(data.videos);
+      }
+    } catch (error) {
+      console.error('Failed to load videos:', error);
+    }
+  };
 
   const characters = [
     { id: 'santa', name: 'Дед Мороз', icon: '🎅', image: '/img/d48aa981-3b64-42ad-a810-bb7c0d926bdd.jpg' },
@@ -35,19 +40,42 @@ const Index = () => {
     { id: 'snowman', name: 'Снеговик', icon: '⛄', image: '/placeholder.svg' },
   ];
 
-  const handleCreateVideo = () => {
+  const handleCreateVideo = async () => {
     if (!childName.trim()) return;
     
-    const newVideo = {
-      id: Date.now(),
-      character: selectedCharacter,
-      name: childName,
-      thumbnail: characters.find(c => c.id === selectedCharacter)?.image || '/placeholder.svg',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
-    };
+    const thumbnail = characters.find(c => c.id === selectedCharacter)?.image || '/placeholder.svg';
     
-    setVideos([newVideo, ...videos]);
-    setChildName('');
+    try {
+      const response = await fetch(VIDEOS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          character: selectedCharacter,
+          name: childName,
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          thumbnail: thumbnail
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.video) {
+        await loadVideos();
+        setChildName('');
+        toast({
+          title: 'Видео создано!',
+          description: `Поздравление для ${childName} готово!`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать видео',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -247,7 +275,7 @@ const Index = () => {
                   {playingVideo === video.id ? (
                     <div className="relative">
                       <video 
-                        src={video.videoUrl} 
+                        src={video.videoUrl || video.video_url} 
                         controls 
                         autoPlay
                         className="w-full h-48 object-cover"

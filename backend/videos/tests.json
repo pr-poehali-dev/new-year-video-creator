@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Test get all videos",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "videos": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test create new video",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "character": "santa",
+        "name": "Test Child",
+        "videoUrl": "https://example.com/video.mp4",
+        "thumbnail": "/img/test.jpg"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "video": {
+          "id": "number",
+          "character": "string",
+          "name": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
