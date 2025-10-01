@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import SnowEffect from '@/components/SnowEffect';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/home/Header';
 import HeroSection from '@/components/home/HeroSection';
 import VideoEditor from '@/components/home/VideoEditor';
-import VideoGallery from '@/components/home/VideoGallery';
+import ExamplesSection from '@/components/home/ExamplesSection';
 import HowItWorks from '@/components/home/HowItWorks';
 import FAQ from '@/components/home/FAQ';
 import ContactSection from '@/components/home/ContactSection';
 import Footer from '@/components/home/Footer';
 
-const VIDEOS_URL = 'https://functions.poehali.dev/25ad61b1-3834-4f5e-9278-01d9d55d229d';
 const GENERATE_URL = 'https://functions.poehali.dev/506f7442-eb6d-4248-b46c-251dcb121be9';
 
 const Index = () => {
@@ -18,25 +17,10 @@ const Index = () => {
   const [selectedCharacter, setSelectedCharacter] = useState('santa');
   const [childName, setChildName] = useState('');
   const [selectedGreeting, setSelectedGreeting] = useState('birthday');
-  const [videos, setVideos] = useState<any[]>([]);
-  const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+
   const [isGenerating, setIsGenerating] = useState(false);
 
-  useEffect(() => {
-    loadVideos();
-  }, []);
 
-  const loadVideos = async () => {
-    try {
-      const response = await fetch(VIDEOS_URL);
-      const data = await response.json();
-      if (data.videos) {
-        setVideos(data.videos);
-      }
-    } catch (error) {
-      console.error('Failed to load videos:', error);
-    }
-  };
 
   const characters = [
     { id: 'santa', name: 'Дед Мороз', icon: '🎅', image: '/img/d48aa981-3b64-42ad-a810-bb7c0d926bdd.jpg' },
@@ -78,7 +62,6 @@ const Index = () => {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        await loadVideos();
         setChildName('');
         toast({
           title: '✨ Видео готово!',
@@ -107,7 +90,7 @@ const Index = () => {
       <SnowEffect />
       <Header />
 
-      <main className="container mx-auto px-4 py-12 space-y-20">
+      <main className="container mx-auto px-4 py-8 md:py-12 space-y-12 md:space-y-20">
         <HeroSection />
         
         <VideoEditor
@@ -123,12 +106,7 @@ const Index = () => {
           handleCreateVideo={handleCreateVideo}
         />
 
-        <VideoGallery
-          videos={videos}
-          characters={characters}
-          playingVideo={playingVideo}
-          setPlayingVideo={setPlayingVideo}
-        />
+        <ExamplesSection />
 
         <HowItWorks />
         <FAQ />

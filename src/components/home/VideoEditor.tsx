@@ -44,25 +44,26 @@ const VideoEditor = ({
   handleCreateVideo
 }: VideoEditorProps) => {
   return (
-    <section id="editor" className="space-y-8">
-      <h2 className="text-5xl font-bold text-center text-primary mb-12">
-        <span className="text-5xl mr-2">🎬</span>
+    <section id="editor" className="space-y-6 md:space-y-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-center text-primary mb-8 md:mb-12 px-2">
+        <span className="text-4xl md:text-5xl mr-2">🎬</span>
         Редактор Видео
       </h2>
       
       <Tabs defaultValue="character" className="max-w-4xl mx-auto">
         <TabsList className="grid w-full grid-cols-3 h-auto">
-          <TabsTrigger value="character" className="text-lg py-4">
-            <Icon name="Users" className="mr-2" size={20} />
-            Персонаж
+          <TabsTrigger value="character" className="text-sm md:text-lg py-3 md:py-4 flex-col md:flex-row gap-1 md:gap-2">
+            <Icon name="Users" className="md:mr-2" size={18} />
+            <span className="hidden sm:inline">Персонаж</span>
+            <span className="sm:hidden text-xs">Герой</span>
           </TabsTrigger>
-          <TabsTrigger value="music" className="text-lg py-4">
-            <Icon name="Music" className="mr-2" size={20} />
-            Музыка
+          <TabsTrigger value="music" className="text-sm md:text-lg py-3 md:py-4 flex-col md:flex-row gap-1 md:gap-2">
+            <Icon name="Music" className="md:mr-2" size={18} />
+            <span>Музыка</span>
           </TabsTrigger>
-          <TabsTrigger value="effects" className="text-lg py-4">
-            <Icon name="Sparkles" className="mr-2" size={20} />
-            Эффекты
+          <TabsTrigger value="effects" className="text-sm md:text-lg py-3 md:py-4 flex-col md:flex-row gap-1 md:gap-2">
+            <Icon name="Sparkles" className="md:mr-2" size={18} />
+            <span>Эффекты</span>
           </TabsTrigger>
         </TabsList>
 
@@ -73,7 +74,7 @@ const VideoEditor = ({
               <CardDescription>Кто будет поздравлять?</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {characters.map(char => (
                   <Card 
                     key={char.id}
@@ -84,18 +85,18 @@ const VideoEditor = ({
                     }`}
                     onClick={() => setSelectedCharacter(char.id)}
                   >
-                    <CardContent className="pt-6 text-center space-y-3">
-                      <div className="text-6xl">{char.icon}</div>
-                      <img src={char.image} alt={char.name} className="w-full h-32 object-cover rounded-lg" />
-                      <p className="font-semibold text-lg">{char.name}</p>
+                    <CardContent className="pt-4 md:pt-6 text-center space-y-2 md:space-y-3">
+                      <div className="text-5xl md:text-6xl">{char.icon}</div>
+                      <img src={char.image} alt={char.name} className="w-full h-28 md:h-32 object-cover rounded-lg" />
+                      <p className="font-semibold text-base md:text-lg">{char.name}</p>
                     </CardContent>
                   </Card>
                 ))}
               </div>
 
               <div className="space-y-4">
-                <Label htmlFor="greeting" className="text-lg">Тип поздравления</Label>
-                <div className="grid md:grid-cols-2 gap-3">
+                <Label htmlFor="greeting" className="text-base md:text-lg">Тип поздравления</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {greetings.map(greeting => (
                     <Card 
                       key={greeting.id}
@@ -106,8 +107,8 @@ const VideoEditor = ({
                       }`}
                       onClick={() => setSelectedGreeting(greeting.id)}
                     >
-                      <CardContent className="py-4">
-                        <p className="font-semibold">{greeting.name}</p>
+                      <CardContent className="py-3 md:py-4">
+                        <p className="font-semibold text-sm md:text-base">{greeting.name}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -115,39 +116,39 @@ const VideoEditor = ({
               </div>
 
               <div className="space-y-4">
-                <Label htmlFor="childName" className="text-lg">Имя ребенка</Label>
+                <Label htmlFor="childName" className="text-base md:text-lg">Имя ребенка</Label>
                 <Input 
                   id="childName"
                   value={childName}
                   onChange={(e) => setChildName(e.target.value)}
                   placeholder="Введите имя..."
-                  className="text-lg py-6"
+                  className="text-base md:text-lg py-4 md:py-6"
                 />
               </div>
 
               {childName && selectedGreeting && (
                 <Card className="bg-accent/30">
-                  <CardContent className="pt-6">
-                    <p className="text-sm text-muted-foreground mb-2">Предпросмотр текста:</p>
-                    <p className="italic">"{greetings.find(g => g.id === selectedGreeting)?.text.replace('{name}', childName)}"</p>
+                  <CardContent className="pt-4 md:pt-6">
+                    <p className="text-xs md:text-sm text-muted-foreground mb-2">Предпросмотр текста:</p>
+                    <p className="italic text-sm md:text-base">"{greetings.find(g => g.id === selectedGreeting)?.text.replace('{name}', childName)}"</p>
                   </CardContent>
                 </Card>
               )}
 
               <Button 
                 onClick={handleCreateVideo}
-                className="w-full text-lg py-6 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                className="w-full text-base md:text-lg py-5 md:py-6 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
                 disabled={!childName.trim() || isGenerating}
               >
                 {isGenerating ? (
                   <>
-                    <Icon name="Loader2" className="mr-2 animate-spin" size={24} />
-                    🎙️ Создаю голосовое поздравление...
+                    <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
+                    <span className="text-sm md:text-base">🎙️ Создаю поздравление...</span>
                   </>
                 ) : (
                   <>
-                    <Icon name="Wand2" className="mr-2" size={24} />
-                    🎤 Создать голосовое поздравление
+                    <Icon name="Wand2" className="mr-2" size={20} />
+                    <span className="text-sm md:text-base">🎤 Создать поздравление</span>
                   </>
                 )}
               </Button>
