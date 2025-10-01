@@ -41,7 +41,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'GET':
         cur.execute(
-            "SELECT id, character_type, child_name, video_url, thumbnail_url, views_count, created_at FROM videos ORDER BY created_at DESC"
+            "SELECT id, character_type, child_name, video_url, thumbnail_url, views_count, created_at, greeting_type, greeting_text FROM videos ORDER BY created_at DESC"
         )
         rows = cur.fetchall()
         
@@ -54,7 +54,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'videoUrl': row[3],
                 'thumbnail': row[4],
                 'views': row[5],
-                'createdAt': row[6].isoformat() if row[6] else None
+                'createdAt': row[6].isoformat() if row[6] else None,
+                'greetingType': row[7],
+                'greetingText': row[8]
             })
         
         cur.close()

@@ -1,0 +1,2 @@
+ALTER TABLE videos ADD COLUMN IF NOT EXISTS greeting_type VARCHAR(50) DEFAULT 'newyear';
+ALTER TABLE videos ADD COLUMN IF NOT EXISTS greeting_text TEXT;

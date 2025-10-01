@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Generate video for child",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "character": "santa",
+        "name": "Маша",
+        "message": ""
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "video_id": "number",
+        "audio_url": "string",
+        "greeting_text": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing name validation",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "character": "santa"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Name is required"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

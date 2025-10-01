@@ -10,13 +10,16 @@ import SnowEffect from '@/components/SnowEffect';
 import { useToast } from '@/hooks/use-toast';
 
 const VIDEOS_URL = 'https://functions.poehali.dev/25ad61b1-3834-4f5e-9278-01d9d55d229d';
+const GENERATE_URL = 'https://functions.poehali.dev/506f7442-eb6d-4248-b46c-251dcb121be9';
 
 const Index = () => {
   const { toast } = useToast();
   const [selectedCharacter, setSelectedCharacter] = useState('santa');
   const [childName, setChildName] = useState('');
+  const [selectedGreeting, setSelectedGreeting] = useState('birthday');
   const [videos, setVideos] = useState<any[]>([]);
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     loadVideos();
@@ -40,13 +43,26 @@ const Index = () => {
     { id: 'snowman', name: 'Снеговик', icon: '⛄', image: '/placeholder.svg' },
   ];
 
+  const greetings = [
+    { id: 'birthday', name: 'С Днём Рождения', text: 'Дорогой {name}! Поздравляю тебя с Днём Рождения! Желаю тебе счастья, здоровья и исполнения всех желаний! Пусть этот год принесёт тебе много радости!' },
+    { id: 'newyear', name: 'С Новым Годом', text: 'Здравствуй, {name}! Я, Дед Мороз, поздравляю тебя с наступающим Новым Годом! Желаю тебе волшебства, чудес и много-много подарков под ёлочкой!' },
+    { id: 'goodbehavior', name: 'За хорошее поведение', text: 'Молодец, {name}! Ты был очень послушным в этом году! Я горжусь тобой и приготовил для тебя особенный подарок! Продолжай в том же духе!' },
+    { id: 'achievement', name: 'За достижения', text: 'Умница, {name}! Ты добился больших успехов! Я очень рад за тебя! Продолжай стараться, и у тебя всё получится!' },
+  ];
+
   const handleCreateVideo = async () => {
     if (!childName.trim()) return;
     
-    const thumbnail = characters.find(c => c.id === selectedCharacter)?.image || '/placeholder.svg';
+    setIsGenerating(true);
+    const greetingText = greetings.find(g => g.id === selectedGreeting)?.text.replace('{name}', childName) || '';
     
     try {
-      const response = await fetch(VIDEOS_URL, {
+      toast({
+        title: '🎬 Генерация началась',
+        description: 'Создаю голосовое поздравление с AI...',
+      });
+
+      const response = await fetch(GENERATE_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,19 +70,24 @@ const Index = () => {
         body: JSON.stringify({
           character: selectedCharacter,
           name: childName,
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          thumbnail: thumbnail
+          message: greetingText
         })
       });
 
       const data = await response.json();
       
-      if (response.ok && data.video) {
+      if (response.ok && data.success) {
         await loadVideos();
         setChildName('');
         toast({
-          title: 'Видео создано!',
-          description: `Поздравление для ${childName} готово!`,
+          title: '✨ Видео готово!',
+          description: `Голосовое поздравление для ${childName} создано!`,
+        });
+      } else {
+        toast({
+          title: '⚠️ Требуется настройка',
+          description: data.error || 'Добавьте OpenAI API ключ в настройках проекта',
+          variant: 'destructive',
         });
       }
     } catch (error) {
@@ -75,6 +96,8 @@ const Index = () => {
         description: 'Не удалось создать видео',
         variant: 'destructive',
       });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -194,6 +217,27 @@ const Index = () => {
                   </div>
 
                   <div className="space-y-4">
+                    <Label htmlFor="greeting" className="text-lg">Тип поздравления</Label>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      {greetings.map(greeting => (
+                        <Card 
+                          key={greeting.id}
+                          className={`cursor-pointer transition-all ${
+                            selectedGreeting === greeting.id 
+                              ? 'ring-2 ring-primary bg-primary/5' 
+                              : 'hover:bg-accent/50'
+                          }`}
+                          onClick={() => setSelectedGreeting(greeting.id)}
+                        >
+                          <CardContent className="py-4">
+                            <p className="font-semibold">{greeting.name}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
                     <Label htmlFor="childName" className="text-lg">Имя ребенка</Label>
                     <Input 
                       id="childName"
@@ -204,13 +248,31 @@ const Index = () => {
                     />
                   </div>
 
+                  {childName && selectedGreeting && (
+                    <Card className="bg-accent/30">
+                      <CardContent className="pt-6">
+                        <p className="text-sm text-muted-foreground mb-2">Предпросмотр текста:</p>
+                        <p className="italic">"{greetings.find(g => g.id === selectedGreeting)?.text.replace('{name}', childName)}"</p>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   <Button 
                     onClick={handleCreateVideo}
                     className="w-full text-lg py-6 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-                    disabled={!childName.trim()}
+                    disabled={!childName.trim() || isGenerating}
                   >
-                    <Icon name="Wand2" className="mr-2" size={24} />
-                    Создать волшебное видео
+                    {isGenerating ? (
+                      <>
+                        <Icon name="Loader2" className="mr-2 animate-spin" size={24} />
+                        🎙️ Создаю голосовое поздравление...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="Wand2" className="mr-2" size={24} />
+                        🎤 Создать голосовое поздравление
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -273,14 +335,18 @@ const Index = () => {
               <Card key={video.id} className="overflow-hidden hover:shadow-xl transition-shadow">
                 <div className="relative">
                   {playingVideo === video.id ? (
-                    <div className="relative">
-                      <video 
+                    <div className="relative bg-gradient-to-br from-primary/20 to-secondary/20 p-8 flex flex-col items-center justify-center min-h-[12rem]">
+                      <audio 
                         src={video.videoUrl || video.video_url} 
                         controls 
                         autoPlay
-                        className="w-full h-48 object-cover"
+                        className="w-full"
                         onEnded={() => setPlayingVideo(null)}
                       />
+                      <div className="mt-4 text-center">
+                        <div className="text-6xl mb-2">{characters.find(c => c.id === video.character)?.icon}</div>
+                        <p className="text-sm text-muted-foreground">🎙️ Голосовое поздравление</p>
+                      </div>
                       <Button 
                         size="sm" 
                         variant="secondary"
@@ -299,8 +365,8 @@ const Index = () => {
                           className="bg-white text-primary hover:bg-white/90"
                           onClick={() => setPlayingVideo(video.id)}
                         >
-                          <Icon name="Play" className="mr-2" />
-                          Смотреть
+                          <Icon name="Volume2" className="mr-2" />
+                          Слушать
                         </Button>
                       </div>
                     </>
