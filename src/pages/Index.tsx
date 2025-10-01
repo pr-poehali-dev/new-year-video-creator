@@ -12,9 +12,22 @@ const Index = () => {
   const [selectedCharacter, setSelectedCharacter] = useState('santa');
   const [childName, setChildName] = useState('');
   const [videos, setVideos] = useState([
-    { id: 1, character: 'santa', name: 'Маша', thumbnail: '/img/d48aa981-3b64-42ad-a810-bb7c0d926bdd.jpg' },
-    { id: 2, character: 'snowmaiden', name: 'Саша', thumbnail: '/img/e7db9042-a0ba-48c2-bb1b-201b2767e23a.jpg' },
+    { 
+      id: 1, 
+      character: 'santa', 
+      name: 'Маша', 
+      thumbnail: '/img/d48aa981-3b64-42ad-a810-bb7c0d926bdd.jpg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
+    },
+    { 
+      id: 2, 
+      character: 'snowmaiden', 
+      name: 'Саша', 
+      thumbnail: '/img/e7db9042-a0ba-48c2-bb1b-201b2767e23a.jpg',
+      videoUrl: 'https://www.w3schools.com/html/movie.mp4'
+    },
   ]);
+  const [playingVideo, setPlayingVideo] = useState<number | null>(null);
 
   const characters = [
     { id: 'santa', name: 'Дед Мороз', icon: '🎅', image: '/img/d48aa981-3b64-42ad-a810-bb7c0d926bdd.jpg' },
@@ -29,7 +42,8 @@ const Index = () => {
       id: Date.now(),
       character: selectedCharacter,
       name: childName,
-      thumbnail: characters.find(c => c.id === selectedCharacter)?.image || '/placeholder.svg'
+      thumbnail: characters.find(c => c.id === selectedCharacter)?.image || '/placeholder.svg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
     };
     
     setVideos([newVideo, ...videos]);
@@ -230,13 +244,39 @@ const Index = () => {
             {videos.map(video => (
               <Card key={video.id} className="overflow-hidden hover:shadow-xl transition-shadow">
                 <div className="relative">
-                  <img src={video.thumbnail} alt={video.name} className="w-full h-48 object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-                      <Icon name="Play" className="mr-2" />
-                      Смотреть
-                    </Button>
-                  </div>
+                  {playingVideo === video.id ? (
+                    <div className="relative">
+                      <video 
+                        src={video.videoUrl} 
+                        controls 
+                        autoPlay
+                        className="w-full h-48 object-cover"
+                        onEnded={() => setPlayingVideo(null)}
+                      />
+                      <Button 
+                        size="sm" 
+                        variant="secondary"
+                        className="absolute top-2 right-2"
+                        onClick={() => setPlayingVideo(null)}
+                      >
+                        <Icon name="X" size={16} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <img src={video.thumbnail} alt={video.name} className="w-full h-48 object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <Button 
+                          size="lg" 
+                          className="bg-white text-primary hover:bg-white/90"
+                          onClick={() => setPlayingVideo(video.id)}
+                        >
+                          <Icon name="Play" className="mr-2" />
+                          Смотреть
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <CardContent className="pt-4">
                   <p className="font-semibold text-lg">Поздравление для {video.name}</p>
