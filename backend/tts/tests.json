@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Test TTS generation for Santa",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "text": "С Новым Годом!",
+        "character": "santa"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "audio": "string",
+        "contentType": "audio/mpeg"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test missing text",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "character": "santa"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

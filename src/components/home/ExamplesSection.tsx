@@ -72,18 +72,33 @@ const ExamplesSection = () => {
       utterance.volume = 1.0;
       
       const voices = window.speechSynthesis.getVoices();
-      const russianVoice = voices.find(voice => voice.lang.includes('ru'));
       
-      if (russianVoice) {
-        utterance.voice = russianVoice;
+      let selectedVoice;
+      if (characterId === 'santa') {
+        selectedVoice = voices.find(v => 
+          v.lang.includes('ru') && (v.name.includes('Male') || v.name.includes('мужской') || v.name.toLowerCase().includes('yuri'))
+        ) || voices.find(v => v.lang.includes('ru'));
+      } else if (characterId === 'snowmaiden') {
+        selectedVoice = voices.find(v => 
+          v.lang.includes('ru') && (v.name.includes('Female') || v.name.includes('женский') || v.name.toLowerCase().includes('milena'))
+        ) || voices.find(v => v.lang.includes('ru'));
+      } else {
+        selectedVoice = voices.find(v => v.lang.includes('ru'));
+      }
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
       
       if (characterId === 'santa') {
-        utterance.pitch = 0.7;
+        utterance.pitch = 0.6;
+        utterance.rate = 0.85;
       } else if (characterId === 'snowmaiden') {
-        utterance.pitch = 1.3;
+        utterance.pitch = 1.4;
+        utterance.rate = 1.0;
       } else {
-        utterance.pitch = 1.1;
+        utterance.pitch = 1.2;
+        utterance.rate = 1.05;
       }
       
       utterance.onend = () => setPlayingExample(null);
