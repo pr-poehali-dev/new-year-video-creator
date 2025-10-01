@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -14,6 +14,24 @@ interface Character {
 
 const ExamplesSection = () => {
   const [playingExample, setPlayingExample] = useState<string | null>(null);
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
+
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          setVoicesLoaded(true);
+        }
+      };
+      
+      loadVoices();
+      
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+  }, []);
 
   const examples: Character[] = [
     {
@@ -46,9 +64,19 @@ const ExamplesSection = () => {
     setPlayingExample(characterId);
     
     if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'ru-RU';
       utterance.rate = 0.9;
+      utterance.volume = 1.0;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const russianVoice = voices.find(voice => voice.lang.includes('ru'));
+      
+      if (russianVoice) {
+        utterance.voice = russianVoice;
+      }
       
       if (characterId === 'santa') {
         utterance.pitch = 0.7;
@@ -59,9 +87,17 @@ const ExamplesSection = () => {
       }
       
       utterance.onend = () => setPlayingExample(null);
+      utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event);
+        setPlayingExample(null);
+      };
       
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 100);
+    } else {
+      alert('Ваш браузер не поддерживает озвучку. Попробуйте Chrome или Safari.');
+      setPlayingExample(null);
     }
   };
 
